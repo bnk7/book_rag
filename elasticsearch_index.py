@@ -18,7 +18,7 @@ def load_docs(data_dir_path: str | os.PathLike) -> Generator[dict]:
     # TODO: does the modified function work?
     data_path = os.path.join(data_dir_path, 'data.csv')
     # TODO: where/how are these embeddings created?
-    embeds_path = os.path.join(data_dir_path, 'docs_sb_mp_net_embedddings.npy')
+    embeds_path = os.path.join(data_dir_path, 'docs_sb_mp_net_embeddings.npy')
     data_embeddings = np.load(str(embeds_path))
     df = pd.read_csv(data_path)
     df['sbert_embedding'] = df.index.apply(lambda x: data_embeddings[x].tolist())
