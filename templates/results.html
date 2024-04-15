@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+    <title>BRAG</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+          rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+</head>
+
+<body>
+<div id="column">
+    <a href="/"><h2>B R A G .</h2></a>
+    <p id="subtitle">Book Retrieval Augmented Generation</p>
+
+    <p>Search information pertaining to your favorite books here</p>
+
+    <form action="/" name="search" method="POST">
+        <input id="question" class="searchbar" type="text" name="query" size=50
+               placeholder="Type your question here...">
+        <input id="submit" class="searchbar" type="submit" value="Search">
+    </form>
+    <div id="results-holder">
+        <p id="results">Results:</p>
+        <div id="result-text">
+            <p id="llm">{{generation}}</p>
+            <br><br>
+            <p>Title: {{title}}</p>
+            <p>Author: {{author}}</p>
+            <p>Publication Date: {{date}}</p>
+            <p>Summary: {{summary}}</p>
+        </div>
+    </div>
+    <div id="footer">
+        Work by Leora Baumgarten, Brynna Kilcline, Gabby Masini, and Annika Sparrell<br>COSI 217 Spring 2024
+    </div>
+</div>
+<div id="button-container">
+    <div id="icon-button">
+        <a href="https://github.com/bnk7/book_rag/tree/main" id="repo">
+            <img id="ghicon" src="../static/github.png" alt="github"/>&nbsp;&nbsp;&nbsp;See on GitHub&nbsp;&nbsp;
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

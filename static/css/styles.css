@@ -1,0 +1,160 @@
+/*Styles follow the order of elements on the page*/
+body {
+    font-family: "Open Sans", sans-serif;
+    margin: 0;
+    background-color: #f4f2f0;
+}
+
+a {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#column {
+    margin: auto;
+    max-width: 800px;
+    padding: 10px 50px 30px 50px;
+    background-color: white;
+    min-height: 100%;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    display: flex;
+    flex-direction: column;
+}
+
+h2 {
+    font-family: "DM Serif Display", serif;
+    font-size: 60px;
+    color: #504d49;
+    margin-bottom: 0;
+}
+
+#subtitle {
+    color: #504d49;
+    font-family: "Courier", sans-serif;
+    font-size: 20px;
+    margin-top: 0;
+    margin-bottom: 45px;
+}
+
+/*Form styles*/
+.searchbar {
+    font-family: "Open Sans", sans-serif;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+#question {
+    border: 2px solid #BBBBBB;
+    color: black;
+}
+
+::placeholder {
+    font-style: italic;
+    color: #666666;
+}
+
+#question:hover {
+    border: 2px solid #999999;
+    cursor: text;
+}
+
+#question:focus {
+    outline: none;
+    border: 2px solid #999999;
+}
+
+#submit {
+    color: #666666;
+    border: 2px solid #EEEEEE;
+    cursor: pointer;
+}
+
+#submit:hover {
+    background-color: #DDDDDD;
+    border: 2px solid #DDDDDD;
+    cursor: pointer;
+}
+
+/*Results styles*/
+#spacer {
+    height: 300px;
+}
+
+#results {
+    font-family: "Libre Baskerville", serif;
+    font-size: 18px;
+    color: #504d49;
+}
+
+#result-text {
+    padding: 15px;
+}
+
+#result-text p {
+    margin-top: 2px;
+}
+
+#llm {
+    font-style: italic;
+}
+
+/*Credits*/
+#footer {
+    margin-top: 20px;
+    color: #505050;
+    font-size: 12px;
+    text-align: center;
+    position: relative;
+    vertical-align: bottom;
+    width: 800px;
+}
+
+/*Github button styles*/
+#button-container {
+    position:fixed;
+    bottom: 50px;
+    right: 50px;
+    cursor: pointer;
+}
+
+#icon-button {
+    padding: 10px;
+    border-radius: 24px;
+    background-color: #504d49;
+    box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+#icon-button:hover {
+    width: auto;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    color: white
+}
+
+#icon-button a {
+    color: #504d49;
+    text-decoration: none;
+}
+
+#icon-button:hover a {
+    color: white;
+}
+
+#ghicon {
+    width: 24px;
+    height: 24px;
+}
+
+#repo {
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 30px;
+    display: flex;
+    align-items: center;
+    height: 24px;
+}
