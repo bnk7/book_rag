@@ -9,15 +9,19 @@ from typing import Generator, Iterator, Sequence
 
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Index
-from elasticsearch_dsl import Document, Text, Keyword, Nested, DenseVector
+from elasticsearch_dsl import Document, Text, Keyword, DenseVector
 from elasticsearch.helpers import bulk
 
 
 def load_docs(data_dir_path: str | os.PathLike) -> Generator[dict]:
-    # prepare and load the documents for ES indexing
-    # TODO: does the modified function work?
+    """
+    Prepare and load the documents for ES indexing
+
+    :param data_dir_path: path to data
+    :return: generator of JSON objects, one per document
+    """
+    # TODO: change to match embedding and data directory structure
     data_path = os.path.join(data_dir_path, 'data.csv')
-    # TODO: where/how are these embeddings created?
     embeds_path = os.path.join(data_dir_path, 'docs_sb_mp_net_embeddings.npy')
     data_embeddings = np.load(str(embeds_path))
     df = pd.read_csv(data_path)
@@ -31,12 +35,15 @@ class BaseDoc(Document):
     """
     document mapping structure
     """
-    # treat the doc_id as a Keyword (its value won't be tokenized or normalized).
-    doc_id = Keyword()
-    # TODO: change this to match the CSV columns - could do one per col or Nested
+    # treat the ID as a Keyword (its value won't be tokenized or normalized).
+    wikipedia_id = Keyword()
+    freebase_id = Keyword()
     # by default, Text field will be applied a standard analyzer at both index and search time
     title = Text()
-    content = Text()
+    author = Text()
+    date = Text()
+    genres = Text()
+    summary = Text()
     # sentence BERT embedding in the DenseVector field
     sbert_embedding = DenseVector(dims=768)
 
@@ -45,7 +52,8 @@ class ESIndex(object):
     def __init__(self, index_name: str, docs: Iterator[dict] | Sequence[dict]):
         """
         ES index structure
-        :param index_name: the name of your index
+
+        :param index_name: the name of the index
         :param docs: data to be loaded
         """
         # set an elasticsearch connection to your localhost
@@ -65,21 +73,30 @@ class ESIndex(object):
     @staticmethod
     def _populate_doc(docs: Iterator[dict] | Sequence[dict]) -> Generator[BaseDoc]:
         """
-        populate the BaseDoc
+        Populate the BaseDoc
+
         :param docs: wapo docs
-        :return:
+        :return: generator of documents
         """
         for i, doc in enumerate(docs):
             es_doc = BaseDoc(_id=i)
-            # TODO: change this to match the CSV columns
-            es_doc.doc_id = doc["_id"]
-            es_doc.title = doc["title"]
-            es_doc.content = doc["text"]
-            es_doc.sbert_embedding = doc["sbert_embedding"]
+            es_doc.wikipedia_id = doc['Wikipedia ID']
+            es_doc.freebase_id = doc['Freebase ID']
+            es_doc.title = doc['Title']
+            es_doc.author = doc['Author']
+            es_doc.date = doc['Publication date']
+            es_doc.genres = doc['Genres']
+            es_doc.summary = doc['Summary']
+            es_doc.sbert_embedding = doc["sbert_embedding"]  # TODO: change to match CSV
             yield es_doc
 
-    def load(self, docs: Iterator[dict] | Sequence[dict]):
-        # bulk insertion
+    def load(self, docs: Iterator[dict] | Sequence[dict]) -> None:
+        """
+        Perform bulk insertion
+
+        :param docs: documents to be inserted
+        :return: None
+        """
         bulk(
             connections.get_connection(),
             (
@@ -94,7 +111,7 @@ class IndexLoader:
     """
     load document index to Elasticsearch
     """
-    def __init__(self, index, docs: Iterator[dict] | list[dict]):
+    def __init__(self, index: str, docs: Iterator[dict] | list[dict]):
         self.index_name = index
         self.docs = docs
 
@@ -103,11 +120,11 @@ class IndexLoader:
         ESIndex(self.index_name, self.docs)
 
     @classmethod
-    def from_folder(cls, index_name: str, nf_folder_path: str) -> "IndexLoader":
+    def from_folder(cls, index_name: str, data_dir_path: str) -> "IndexLoader":
         try:
-            return IndexLoader(index_name, load_docs(nf_folder_path))
+            return IndexLoader(index_name, load_docs(data_dir_path))
         except FileNotFoundError:
-            raise Exception(f"Cannot find {nf_folder_path}!")
+            raise Exception(f"Cannot find {data_dir_path}")
 
 
 def main():
