@@ -46,11 +46,12 @@ def search(index: str, query: Query, topk: int) -> list[dict]:
     return response_list
 
 
-def process_query_and_search(query: str) -> list[dict]:
+def process_query_and_search(query: str, index_name: str) -> list[dict]:
     """
     Given a user's query, returns the most relevant documents
 
     :param query: user's query
+    :param index_name: name of the ElasticSearch index
     :return: top k documents
     """
     # get the query embedding and convert it to a list
@@ -59,4 +60,4 @@ def process_query_and_search(query: str) -> list[dict]:
     # ElasticSearch Query scored with cosine similarity
     query_vector = generate_query(query_vector)
     # search
-    return search("nf_docs", query_vector, 5)
+    return search(index_name, query_vector, 5)
