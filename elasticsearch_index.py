@@ -2,30 +2,30 @@
 
 import argparse
 import json
-import numpy as np
-import os
-import pandas as pd
 from typing import Generator, Iterator, Sequence
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Index
 from elasticsearch_dsl import Document, Text, Keyword, DenseVector
 from elasticsearch.helpers import bulk
 
+from alchemy_database import make_book_df, Book, Base
 
-def load_docs(data_dir_path: str | os.PathLike) -> Generator[dict]:
+
+def load_docs() -> Generator[dict, None, None]:
     """
     Prepare and load the documents for ES indexing
 
-    :param data_dir_path: path to data
     :return: generator of JSON objects, one per document
     """
-    # TODO: change to match embedding and data directory structure
-    data_path = os.path.join(data_dir_path, 'data.csv')
-    embeds_path = os.path.join(data_dir_path, 'docs_sb_mp_net_embeddings.npy')
-    data_embeddings = np.load(str(embeds_path))
-    df = pd.read_csv(data_path)
-    df['sbert_embedding'] = df.index.apply(lambda x: data_embeddings[x].tolist())
+    DATABASE_URL = "sqlite:///books_db.db"
+    engine = create_engine(DATABASE_URL, echo=True)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
+    db = SessionLocal()
+    df = make_book_df(db, Book)
     json_data = df.to_json(orient='records')
     for i, line in enumerate(json_data):
         yield json.loads(line)
@@ -36,16 +36,15 @@ class BaseDoc(Document):
     document mapping structure
     """
     # treat the ID as a Keyword (its value won't be tokenized or normalized).
-    wikipedia_id = Keyword()
-    freebase_id = Keyword()
+    id = Keyword()
     # by default, Text field will be applied a standard analyzer at both index and search time
     title = Text()
     author = Text()
-    date = Text()
+    pub_date = Text()
     genres = Text()
     summary = Text()
     # sentence BERT embedding in the DenseVector field
-    sbert_embedding = DenseVector(dims=768)
+    embedding = DenseVector(dims=768)
 
 
 class ESIndex(object):
@@ -71,23 +70,21 @@ class ESIndex(object):
             self.load(docs)
 
     @staticmethod
-    def _populate_doc(docs: Iterator[dict] | Sequence[dict]) -> Generator[BaseDoc]:
+    def _populate_doc(docs: Iterator[dict] | Sequence[dict]) -> Generator[BaseDoc, None, None]:
         """
         Populate the BaseDoc
 
-        :param docs: wapo docs
+        :param docs: documents
         :return: generator of documents
         """
-        for i, doc in enumerate(docs):
-            es_doc = BaseDoc(_id=i)
-            es_doc.wikipedia_id = doc['Wikipedia ID']
-            es_doc.freebase_id = doc['Freebase ID']
-            es_doc.title = doc['Title']
-            es_doc.author = doc['Author']
-            es_doc.date = doc['Publication date']
-            es_doc.genres = doc['Genres']
-            es_doc.summary = doc['Summary']
-            es_doc.sbert_embedding = doc["sbert_embedding"]  # TODO: change to match CSV
+        for doc in docs:
+            es_doc = BaseDoc(_id=doc['id'])
+            es_doc.title = doc['title']
+            es_doc.author = doc['author']
+            es_doc.pub_date = doc['pub_date']
+            es_doc.genres = doc['genres']
+            es_doc.summary = doc['summary']
+            es_doc.embedding = doc['embedding']
             yield es_doc
 
     def load(self, docs: Iterator[dict] | Sequence[dict]) -> None:
@@ -120,18 +117,14 @@ class IndexLoader:
         ESIndex(self.index_name, self.docs)
 
     @classmethod
-    def from_folder(cls, index_name: str, data_dir_path: str) -> "IndexLoader":
-        try:
-            return IndexLoader(index_name, load_docs(data_dir_path))
-        except FileNotFoundError:
-            raise Exception(f"Cannot find {data_dir_path}")
+    def from_alchemy(cls, index_name: str) -> "IndexLoader":
+        return IndexLoader(index_name, load_docs())
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--index_name", required=True, type=str, help="name of the ES index")
-    parser.add_argument("--data_dir_path", required=True, type=str, help="path to the data folder")
     args = parser.parse_args()
 
-    idx_loader = IndexLoader.from_folder(args.index_name, args.data_dir_path)
+    idx_loader = IndexLoader.from_alchemy(args.index_name)
     idx_loader.load()
