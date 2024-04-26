@@ -66,3 +66,4 @@ def process_query_and_search(query: str, index_name: str, k: int = 1) -> list[di
 if __name__ == '__main__':
     user_input = 'What kind of animal is Stellaluna?'
     results = process_query_and_search(user_input, 'books', k=2)
+    print(results)
