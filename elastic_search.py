@@ -4,8 +4,13 @@ from sentence_transformers import SentenceTransformer
 from elasticsearch_dsl import Search, connections
 from elasticsearch_dsl.query import ScriptScore, Query
 
+# set an elasticsearch connection to your localhost
+with open('es_password.txt') as f:
+    es_password = f.readline().strip()
+connections.create_connection(hosts=['https://localhost:9200'], timeout=100, alias="default",
+                              basic_auth=('elastic', es_password), verify_certs=False)
+
 model = SentenceTransformer("all-MiniLM-L6-v2")
-connections.create_connection(hosts=['https://localhost:9200'], timeout=60)
 
 
 def generate_query(q_vector: list[float]) -> Query:
@@ -64,6 +69,7 @@ def process_query_and_search(query: str, index_name: str, k: int = 1) -> list[di
 
 
 if __name__ == '__main__':
-    user_input = 'What kind of animal is Stellaluna?'
+    user_input = "Where are the characters of Dr. Franklin’s Island by Gwyneth Jones headed when their plane crashes?"
     results = process_query_and_search(user_input, 'books', k=2)
+    print('RESULTS:')
     print(results)

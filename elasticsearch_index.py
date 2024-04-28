@@ -26,9 +26,9 @@ def load_docs() -> Generator[dict, None, None]:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     df = make_book_df(db, Book)
-    json_data = df.to_json(orient='records')
-    for i, line in enumerate(json_data):
-        yield json.loads(line)
+    json_data = json.loads(df.to_json(orient='records'))
+    for record in json_data:
+        yield record
 
 
 class BaseDoc(Document):
@@ -44,7 +44,7 @@ class BaseDoc(Document):
     genres = Text()
     summary = Text()
     # sentence BERT embedding in the DenseVector field
-    embedding = DenseVector(dims=768)
+    embedding = DenseVector(dims=384)
 
 
 class ESIndex(object):
@@ -56,7 +56,10 @@ class ESIndex(object):
         :param docs: data to be loaded
         """
         # set an elasticsearch connection to your localhost
-        connections.create_connection(hosts=["localhost"], timeout=100, alias="default")
+        with open('es_password.txt') as f:
+            es_password = f.readline().strip()
+        connections.create_connection(hosts=['https://localhost:9200'], timeout=100, alias="default",
+                                      basic_auth=('elastic', es_password), verify_certs=False)
         self.index = index_name
         es_index = Index(self.index)  # initialize the index
 
@@ -79,6 +82,7 @@ class ESIndex(object):
         """
         for doc in docs:
             es_doc = BaseDoc(_id=doc['id'])
+            es_doc.id = doc['id']
             es_doc.title = doc['title']
             es_doc.author = doc['author']
             es_doc.pub_date = doc['pub_date']
@@ -94,8 +98,10 @@ class ESIndex(object):
         :param docs: documents to be inserted
         :return: None
         """
+        # TODO: figure out why this is throwing an error:
+        # elasticsearch.helpers.BulkIndexError: 407 document(s) failed to index.
         bulk(
-            connections.get_connection(),
+            connections.get_connection('default'),
             (
                 # serialize the BaseDoc instance (include meta information and not skip empty documents)
                 d.to_dict(include_meta=True, skip_empty=False)
@@ -121,7 +127,7 @@ class IndexLoader:
         return IndexLoader(index_name, load_docs())
 
 
-def main():
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--index_name", required=True, type=str, help="name of the ES index")
     args = parser.parse_args()
