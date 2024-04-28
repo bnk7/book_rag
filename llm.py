@@ -1,8 +1,9 @@
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 from string import Template
+from llm_secret import key
 
-api_key = ""
+api_key = key
 model = "open-mistral-7b"
 
 client = MistralClient(api_key=api_key)
