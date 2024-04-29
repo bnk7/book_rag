@@ -26,6 +26,8 @@ def load_docs() -> Generator[dict, None, None]:
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     df = make_book_df(db, Book)
+    df['pub_date'] = df['pub_date'].map(str)
+    df['genres'] = df['genres'].map(str)
     json_data = json.loads(df.to_json(orient='records'))
     for record in json_data:
         yield record
@@ -98,8 +100,6 @@ class ESIndex(object):
         :param docs: documents to be inserted
         :return: None
         """
-        # TODO: figure out why this is throwing an error:
-        # elasticsearch.helpers.BulkIndexError: 407 document(s) failed to index.
         bulk(
             connections.get_connection('default'),
             (
