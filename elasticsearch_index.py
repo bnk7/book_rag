@@ -1,6 +1,5 @@
 # code adapted from COSI 132A spring 2023
 
-import argparse
 import json
 from typing import Generator, Iterator, Sequence
 from sqlalchemy import create_engine
@@ -127,10 +126,15 @@ class IndexLoader:
         return IndexLoader(index_name, load_docs())
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--index_name", required=True, type=str, help="name of the ES index")
-    args = parser.parse_args()
+def load_es_index() -> None:
+    """
+    Build an index called 'books'
 
-    idx_loader = IndexLoader.from_alchemy(args.index_name)
+    :return: None
+    """
+    idx_loader = IndexLoader.from_alchemy('books')
     idx_loader.load()
+
+
+if __name__ == '__main__':
+    load_es_index()
