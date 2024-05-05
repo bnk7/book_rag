@@ -5,7 +5,11 @@ May 2024
 
 ## Runtime instructions
 
-1. **TODO**: Mistral API instructions
+1. **TODO**: How to get Mistral API key. Copy your key into a file called llm_secret.py in the repository's root directory 
+with the format:
+    ```
+    key = "YOUR-API-KEY"
+    ```
 2. (OPTIONAL) Set up Elasticsearch
    1. In the terminal, run:
         ```
@@ -34,4 +38,8 @@ $ docker exec -i flask python evaluate.py
 To run unit tests, run:
 ```
 $ docker exec -i flask bash run_unit_tests.sh
+```
+If you are running Elasticsearch, you can run its unit test with:
+```
+$ python test_es.py
 ```
