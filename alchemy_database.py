@@ -91,23 +91,23 @@ def get_max_sims(data_df, query_vec, n):
 
 
 # helper method for making comma separated strings out of dictionaries
-def make_comma_sep_string(d: dict):
+def make_comma_sep_string(items: dict):
     """
     turns a dictionary of strings into a string in a comma separated
     natural langauge list format
     Args:
-        d: a dictionary of strings
+        items: a dictionary of strings
 
-    Returns: string with commas
+    Returns: string formatted with commas and 'and'
 
     """
-    s = ''
-    l = list(d.values())
-    if len(l) > 1:
-        s = ', '.join(l[:-1]) + ' and ' + l[-1]
+    str_list = ''
+    items_list = list(items.values())
+    if len(items_list) > 1:
+        str_list = ', '.join(items_list[:-1]) + ' and ' + items_list[-1]
     else:
-        s = l[0]
-    return s
+        str_list = items_list[0]
+    return str_list
 
 
 # gets the prompt to be fed into the embedding model
@@ -211,7 +211,7 @@ def get_prompt_from_dict(doc: dict, question: str = None):
 if __name__ == "__main__":
     DATABASE_URL = "sqlite:///books_db.db"
     db = make_book_db(DATABASE_URL)
-    book_df = make_book_df(db, Book)
+    book_df = make_book_df(db)
     question = "What does the dagger symbolize in Macbeth?"
     # retrieved docs as list of dicts
     docs = process_query_and_search(question, book_df, 3)  # list of dicts
@@ -224,74 +224,4 @@ if __name__ == "__main__":
         print(doc['author'])
         print(get_prompt_from_dict(doc, question)[:50])  # prints out beginning of prompt
         print(get_prompt_from_dict(doc, question)[-50:])  # prints out last part of prompt to show question
-
-
-    # engine = create_engine(DATABASE_URL, echo=True)
-    # SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    # Base.metadata.create_all(bind=engine)
-    # db = SessionLocal()
-    # book_df = make_book_df(db, Book)
-    #
-    # # below is for testing the querying
-    # q = "Who is the main character of Neverwhere by Neil Gaiman?"
-    # sentences = [q]
-    # model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-    # embeddings = model.encode(sentences)
-    # qv = np.array(embeddings[0])
-    # print(get_max_sim(book_df, qv))
-    # print('*******')
-    # for i, val in get_max_sims(book_df, qv, 3).iterrows():
-    #     print('--------')
-    #     print(val)
-
-
-
-    ### code used for adding books to database on colab where df is from reading in the
-    ### summaries as a dataframe
-    # model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
-    # db = SessionLocal()
-    #
-    # for index, row in df.iterrows():
-    #     genres = None
-    #     if row['genres'] != None:
-    #         genres = json.loads(row['genres'])
-    #     add_book(model, db, row['title'], row['author'], genres, row['summary'], row['pub_date'])
-
-    ### old code that i used for my own testing, and will likely put in unit tests later
-    # e1 = pickle.dumps([1, 2, 3, 4, 5])
-    # e2 = pickle.dumps([5, 5, 3, 4, 5])
-    # b = Book(title='a title', author='an author', genres=pickle.dumps({'g1': 'a genre'}), summary='a summary',
-    #          pub_date='a date', embedding=e1)
-    # b2 = Book(title='b title', author='b author', genres=pickle.dumps({'g1': 'b genre'}), summary='b summary',
-    #           pub_date='b date', embedding=e2)
-    # db.add(b)
-    # db.add(b2)
-    # db.commit()
-    #
-    # # Query
-    # user = db.query(Book).filter_by(title="a title").first()
-    # print("Found user:", user.author)
-    # print("Found user:", pickle.loads(user.embedding))
-    # print("Found user:", pickle.loads(user.genres))
-    # df = make_book_df(db, Book)
-    # print(df)
-    # print('a')
-    # print(np.sum(df['embedding'], axis=0))
-    # vec = np.array([1, 0, 0, 0, 0])
-    # print('b')
-    # print(get_max_sim(df, vec))
-    # books = db.query(Book).all()
-    # print(len(books))
-    # # Print each record
-    # for book in books:
-    #     print("Title:", book.title)
-    #     print("Author:", book.author)
-    #     print("Genres:", pickle.loads(book.genres))
-    #     print("Summary:", book.summary)
-    #     print("Publication Date:", book.pub_date)
-    #     print("Embedding:", pickle.loads(book.embedding)[0])
-    #     print("\n")
-    #     break
-    # # Close the session
-    # db.close()
 
