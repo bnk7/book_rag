@@ -1,19 +1,38 @@
-# book_rag
+# Book RAG
+Gabby Masini, Leora Baumgarten, Annika Sparrell, and Brynna Kilcline
 
-## Current Elasticsearch instructions
-```
-$ docker network create elastic
-$ docker build -t es_test -f es_dockerfile .
-$ docker run --name es01 --net elastic -p 9200:9200 -it -m 0.5GB es_test
-```
-You may need to add `winpty` at the beginning of the `run` command. 
-Then, copy and paste the password for the elastic user into a file called es_password.txt in the repository's root folder.
+May 2024
 
-In a separate window, create the Elasticsearch index:
+## Runtime instructions
+
+1. **TODO**: Mistral API instructions
+2. (OPTIONAL) Set up Elasticsearch
+   1. In the terminal, run:
+        ```
+        $ docker network create elastic
+        $ docker build -t es -f es_dockerfile .
+        $ docker run --name es01 --net elastic -p 9200:9200 -it -m 0.5GB es
+        ```
+        You may need to add `winpty` at the beginning of the `run` command. 
+   2. Copy and paste the password for the elastic user into a file called es_password.txt in the repository's root folder.
+   3. In a separate terminal window, create the Elasticsearch index:
+        ```
+        $ python elasticsearch_index.py
+        ```
+3. Build and run the application:
+    ```
+    $ docker build -t flask_app .
+    $ docker run --name flask -dp 8080:8080 flask_app
+    ```
+4. Navigate to [http://127.0.0.1:8080](http://127.0.0.1:8080) in your browser.
+
+## Testing instructions
+To evaluate the system's performance, run:
 ```
-$ python elasticsearch_index.py --index_name books
+docker exec -i flask evaluate.py
 ```
-Then you can test it with
+To run unit tests, run:
 ```
-$ python elastic_search.py
+docker exec -i flask test_llm.py
 ```
+**TODO:** Add more unit tests
