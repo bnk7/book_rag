@@ -105,6 +105,7 @@ h2 {
 
 #result-text p {
     margin-top: 2px;
+    padding: 0;
 }
 
 #llm {

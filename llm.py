@@ -90,7 +90,7 @@ def convert_date(date: str) -> str:
     return month + " " + day + ", " + year
 
 
-def get_answer(question, context) -> str:
+def get_answer(question: str, context: dict[str, str]) -> str:
     """Gets Mistral output
 
     Args:
@@ -106,3 +106,36 @@ def get_answer(question, context) -> str:
         messages=message,
     )
     return chat_response.choices[0].message.content
+
+def choose_best_book(question: str, contexts: list[dict[str, str]]) -> dict[str, str | dict]:
+    """
+
+    """
+    instruction = "Respond only to the question asked; the response should be concise and relevant to the question."
+    prompt = """"""
+    offset = 61 + len(question)
+    for i, context in enumerate(contexts):
+        doc_message = get_prompt(question, context)
+        if i == 0:
+            prompt += "First "
+        elif i == 1:
+            prompt += "Second "
+        elif i == 2:
+            prompt += "Third "
+        prompt += doc_message[1].content[:-offset]
+        prompt += "\n---------\n"
+    prompt += f"""Based on these three contexts, which context (first, second, or third) most correctly answers the following question? 
+Question: {question}
+"""
+    message = [ChatMessage(role='system', content=instruction), ChatMessage(role='user', content=prompt)]
+    chat_response = client.chat(
+        model=model,
+        messages=message,
+    )
+    answer = chat_response.choices[0].message.content
+    if "second" in answer:
+        return contexts[1]
+    elif "third" in answer:
+        return contexts[2]
+    else:
+        return contexts[0]
