@@ -59,7 +59,7 @@ Question: What does the dagger symbolize in Macbeth?"""
                    }
         output = get_prompt(question, context)[1].content
         expected = """Context:
-Macbeth was written by William Shakespeare in 1606. It is a work of Shakespearean tragedy, Tragedy, Theatre and Shakespearean Theatre. Here is a summary of Macbeth: A man tries to avoid his destiny but it comes to him anyways.
+Macbeth was written by William Shakespeare in 1606. It is a work of Shakespearean tragedy, Tragedy, Theatre, and Shakespearean Theatre. Here is a summary of Macbeth: A man tries to avoid his destiny but it comes to him anyways.
 ---
 Now here is the question you need to answer. 
 Question: What does the dagger symbolize in Macbeth?"""

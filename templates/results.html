@@ -9,6 +9,7 @@
           rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 
 <body>
@@ -19,8 +20,9 @@
     <p>Search information pertaining to your favorite books here</p>
 
     <form action="/" name="search" method="POST">
-        <input id="question" class="searchbar" type="text" name="query" size=50
-               placeholder="Type your question here...">
+        <input id="question" class="searchbar" type="text" name="query" size=50 value="{{ query }}"
+               placeholder="Type your question here..." autocomplete="off">
+        <label for="question"></label>
         <input id="submit" class="searchbar" type="submit" value="Search">
     </form>
     <div id="results-holder">
@@ -31,6 +33,7 @@
             <p>Title: {{title}}</p>
             <p>Author: {{author}}</p>
             <p>Publication Date: {{date}}</p>
+            <p>Genres: {{genres}}</p>
             <p>Summary: {{summary}}</p>
         </div>
     </div>

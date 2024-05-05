@@ -1,7 +1,9 @@
 from flask import Flask, request, render_template
-from llm import get_answer
+from llm import get_answer, dict_to_commas, convert_date
+from alchemy_database import make_book_db, make_book_df, process_query_and_search
 
 app = Flask(__name__)
+DATABASE_URL = "sqlite:///books_db.db"
 
 
 @app.route("/", methods=["GET", "POST"])
@@ -11,18 +13,31 @@ def index():
     else:
         query = request.form["query"]
 
-        context = {'title': "",
-                   'author': "",
-                   'summary': ""
-                   }
-        output = get_answer(query, context)
+        db = make_book_db(DATABASE_URL)
+        book_df = make_book_df(db)
+        doc = process_query_and_search(query, book_df, 1)[0]
+        # keys in each doc are ['id', 'title', 'author', 'genres', 'summary', 'pub_date', 'embedding', 'sims']
+        author = doc["author"] if doc["author"] is not None else "N/A"
+        genres = dict_to_commas(doc["genres"]) if doc["genres"] is not None else "N/A"
+        if doc["pub_date"] is not None:
+            if len(doc["pub_date"]) > 4:
+                date = convert_date(doc["pub_date"])
+            else:
+                date = doc["pub_date"]
+        else:
+            date = "N/A"
+        llm_output = get_answer(query, doc)
 
-        title = "The Lord of the Rings"
-        author = "J.R.R. Tolkien"
-        date = "1954 (England), 1955 (America)"
-        summary = "When one hobbit inherits a magical ring, he never would have imagined that it would lead him on such a perilous quest. Joining three other hobbits, two Men, an Elf, a dwarf, and a wizard, he sets out to destroy the very thing his uncle found so many years before."
         return render_template(
-            "results.html", generation=output, title=title, author=author, date=date, summary=summary)
+            "results.html",
+            query=query,
+            generation=llm_output,
+            title=doc["title"],
+            author=author,
+            genres=genres,
+            date=date,
+            summary=doc["summary"]
+        )
 
 
 if __name__ == "__main__":

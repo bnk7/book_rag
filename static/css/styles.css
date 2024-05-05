@@ -63,6 +63,10 @@ h2 {
     border: 2px solid #999999;
 }
 
+#question:focus::placeholder {
+    color: transparent;
+}
+
 #submit {
     color: #666666;
     border: 2px solid #EEEEEE;
@@ -81,7 +85,7 @@ h2 {
 }
 
 #results {
-    font-family: "Libre Baskerville", serif;
+    font-family: "Open Sans", sans-serif;
     font-size: 18px;
     color: #504d49;
 }

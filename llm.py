@@ -37,11 +37,7 @@ Question: $question"""
         else:
             template_string = "$title was written in $pub_date. " + template_string
     if context['genres'] is not None:
-        genres = list(context['genres'].values())
-        if len(genres) > 1:
-            values['genres'] = ', '.join(genres[:-1]) + ' and ' + genres[-1]
-        else:
-            values['genres'] = genres[0]
+        values['genres'] = dict_to_commas(context["genres"])
         if has_author:
             template_string = template_string[:-107] + "It is a work of $genres. " + template_string[-107:]
         else:
@@ -56,6 +52,42 @@ Question: $question"""
     prompt = prompt_template.substitute(values)
     message = [ChatMessage(role='system', content=instruction), ChatMessage(role='user', content=prompt)]
     return message
+
+
+def dict_to_commas(data: dict[str, str]) -> str:
+    """
+    Return a nicely formatted readable version of the values of a dictionary.
+
+    Args:
+        data (dict[str, str]): The dictionary to be formatted
+    Returns:
+        String representing the values of the dictionary
+    """
+    items = list(data.values())
+    if len(items) > 2:
+        output = ', '.join(items[:-1]) + ', and ' + items[-1]
+    elif len(items) == 2:
+        output = items[0] + ' and ' + items[1]
+    else:
+        output = items[0]
+    return output
+
+
+def convert_date(date: str) -> str:
+    """Converts the given date from yyyy-mm-dd format to month day, year format.
+
+    Args:
+        date (str): The date to convert
+    Returns:
+        String representing the reformatted date
+    """
+    months = ["January", "February", "March", "April", "May", "June", "July",
+              "August", "September", "October", "November", "December"]
+    year = date[:4]
+    month = months[int(date[5:7])]
+    day = date[-2:]
+
+    return month + " " + day + ", " + year
 
 
 def get_answer(question, context) -> str:

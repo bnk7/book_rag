@@ -19,32 +19,32 @@ class Book(Base):
     id = Column(Integer, primary_key=True, unique=True, index=True)
     title = Column(Text)
     author = Column(Text)
-    genres = Column(LargeBinary) # dictionary
+    genres = Column(LargeBinary)  # dictionary
     summary = Column(Text)
     pub_date = Column(Text)
-    embedding = Column(LargeBinary) # np array
+    embedding = Column(LargeBinary)  # np array
 
     def __repr__(self):
         return f"('{self.title}')"
 
 
 # makes a dataframe out of book database
-def make_book_df(db, model):
+def make_book_df(db):
     """
     given a database db and model, it creates a pandas dataframe that
     includes all of the same values
     Args:
         db: a database session
-        model: data model
 
     Returns: pandas dataframe
 
     """
-    instances = db.query(model).all()
+    instances = db.query(Book).all()
     data = [{"id": instance.id, "title": instance.title, "author": instance.author,
              "genres": pickle.loads(instance.genres), "summary": instance.summary, "pub_date": instance.pub_date,
              "embedding": np.array(pickle.loads(instance.embedding))} for instance in instances]
     return pd.DataFrame(data)
+
 
 def cosine_sim(x, y):
     """
@@ -58,6 +58,7 @@ def cosine_sim(x, y):
     """
     return np.dot(x, y) / (np.linalg.norm(x) * np.linalg.norm(y))
 
+
 # gets the most similar document to query_vec from data_df
 def get_max_sim(data_df, query_vec):
     """
@@ -69,10 +70,11 @@ def get_max_sim(data_df, query_vec):
     Returns: dict of most similar information from data_df
 
     """
-    dot_products = data_df['embedding'].apply(lambda x: cosine_sim(x, query_vec))#np.dot(data_df['embedding'], query_vec)
+    dot_products = data_df['embedding'].apply(lambda x: cosine_sim(x, query_vec))  # np.dot(data_df['embedding'], query_vec)
     return dict(data_df.iloc[np.argmax(dot_products)])
 
-#gets n most similar documents to query_vec from data_df
+
+# gets n most similar documents to query_vec from data_df
 def get_max_sims(data_df, query_vec, n):
     """
     gets the data_df dataframe entries that are most similar to the query vector
@@ -84,13 +86,14 @@ def get_max_sims(data_df, query_vec, n):
     Returns: list of dicts
 
     """
-    data_df['sims'] = data_df['embedding'].apply(lambda x: cosine_sim(x, query_vec))#np.dot(data_df['embedding'], query_vec)
+    data_df['sims'] = data_df['embedding'].apply(lambda x: cosine_sim(x, query_vec))  # np.dot(data_df['embedding'], query_vec)
     return data_df.nlargest(n, 'sims').to_dict('records')
+
 
 # helper method for making comma separated strings out of dictionaries
 def make_comma_sep_string(d: dict):
     """
-    turns a dictionary of strings into a string in a comma separted
+    turns a dictionary of strings into a string in a comma separated
     natural langauge list format
     Args:
         d: a dictionary of strings
@@ -106,6 +109,7 @@ def make_comma_sep_string(d: dict):
         s = l[0]
     return s
 
+
 # gets the prompt to be fed into the embedding model
 def emb_get_prompt(title, author, genres, summary, pub_date):
     """
@@ -113,7 +117,7 @@ def emb_get_prompt(title, author, genres, summary, pub_date):
     natural langauge prompt
     Args:
         title: string book title
-        string author
+        author: string author
         genres: dict of genres
         summary: string summary of book
         pub_date: string date
@@ -132,6 +136,7 @@ def emb_get_prompt(title, author, genres, summary, pub_date):
     if summary:
         prompt += " Here is a summary of " + title + ": " + summary
     return prompt
+
 
 def add_book(model, db, title: str, author: str, genres: dict, summary: str, pub_date: str):
     """
@@ -152,6 +157,7 @@ def add_book(model, db, title: str, author: str, genres: dict, summary: str, pub
     db.add(book)
     db.commit()
 
+
 def process_query_and_search(query: str, dataframe: pd.DataFrame, k: int = 1) -> list[dict]:
     """
     Given a user's query, returns the most relevant documents
@@ -167,22 +173,24 @@ def process_query_and_search(query: str, dataframe: pd.DataFrame, k: int = 1) ->
     # search
     return get_max_sims(dataframe, query_vector, k)
 
-def make_book_db(DATABASE_URL: str):
+
+def make_book_db(db_url: str):
     """
     returns database based on specific url
     Args:
-        DATABASE_URL: string database url
+        db_url: string database url
 
     Returns: database
 
     """
-    engine = create_engine(DATABASE_URL, echo=True)
+    engine = create_engine(db_url, echo=True)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     return db
 
-def get_prompt_from_dict(doc: dict, question:str=None):
+
+def get_prompt_from_dict(doc: dict, question: str = None):
     """
     given a dict (doc) of book information and optionally a question
     it returns this information together in a string in a specific  format
@@ -198,6 +206,7 @@ def get_prompt_from_dict(doc: dict, question:str=None):
     if question:
         prompt += '\n' + question
     return prompt
+
 
 if __name__ == "__main__":
     DATABASE_URL = "sqlite:///books_db.db"

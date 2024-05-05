@@ -6,6 +6,7 @@ from alchemy_database import Book, make_book_db, add_book, make_book_df, \
     process_query_and_search, make_comma_sep_string, \
     emb_get_prompt, cosine_sim, get_max_sim, get_max_sims
 
+
 # Define the unit tests
 class TestBookClass(unittest.TestCase):
     @classmethod
@@ -56,7 +57,7 @@ class TestBookClass(unittest.TestCase):
 
     def test_make_book_df(self):
         # call make_book_df to convert database records to dataframe
-        df = make_book_df(self.db, Book)
+        df = make_book_df(self.db)
 
         # check if df is not empty
         self.assertFalse(df.empty)
@@ -125,7 +126,6 @@ class TestMethods(unittest.TestCase):
         y = np.array([0, 1, 0])
         result = cosine_sim(x, y)
         self.assertAlmostEqual(result, 0.0, places=8)
-
 
     def test_get_max_sim(self):
         query_vec = np.array([1, 0, 1])
