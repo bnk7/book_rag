@@ -41,12 +41,12 @@ Here are the steps for running it:
    $ docker run --name es01 --net elastic -p 9200:9200 -it -m 0.5GB es
    ```
    You may need to add `winpty` at the beginning of the `run` command. 
-2. Copy and paste the password for the elastic user into a file called es_password.txt in the repository's root folder.
-3. In a separate terminal window, create the Elasticsearch index:
+3. Copy and paste the password for the elastic user into a file called es_password.txt in the repository's root folder.
+4. In a separate terminal window, create the Elasticsearch index:
      ```
      $ python elasticsearch_index.py
      ```
-4. You may now input your query:
+5. You may now input your query:
    ```
    $ python elastic_search.py --query <YOUR-QUERY>
    ```
