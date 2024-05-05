@@ -29,10 +29,9 @@ May 2024
 ## Testing instructions
 To evaluate the system's performance, run:
 ```
-docker exec -i flask evaluate.py
+$ docker exec -i flask python evaluate.py
 ```
 To run unit tests, run:
 ```
-docker exec -i flask test_llm.py
+$ docker exec -i flask bash run_unit_tests.sh
 ```
-**TODO:** Add more unit tests
