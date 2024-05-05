@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template
 from llm import get_answer, dict_to_commas, convert_date
 from alchemy_database import make_book_db, make_book_df, process_query_and_search
+# from elastic_search import process_query_and_search as elasticsearch_retrieval
 
 app = Flask(__name__)
 DATABASE_URL = "sqlite:///books_db.db"
@@ -16,7 +17,7 @@ def index():
         db = make_book_db(DATABASE_URL)
         book_df = make_book_df(db)
         doc = process_query_and_search(query, book_df, 1)[0]
-        # keys in each doc are ['id', 'title', 'author', 'genres', 'summary', 'pub_date', 'embedding', 'sims']
+        # doc keys are ['id', 'title', 'author', 'genres', 'summary', 'pub_date', 'embedding', 'sims']
         author = doc["author"] if doc["author"] is not None else "N/A"
         genres = dict_to_commas(doc["genres"]) if doc["genres"] is not None else "N/A"
         if doc["pub_date"] is not None:

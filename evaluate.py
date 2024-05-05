@@ -1,9 +1,9 @@
-from alchemy_database import process_query_and_search, make_book_db, make_book_df, Book
+from alchemy_database import process_query_and_search, make_book_db, make_book_df
 from argparse import ArgumentParser
 from falcon_evaluate.evaluate import FalconEvaluator
 from falcon_evaluate.utils import MetricsAggregator
 import json
-from llm import get_prompt, get_answer
+from llm import get_answer
 import pandas as pd
 from rouge_score import rouge_scorer
 
@@ -54,7 +54,7 @@ def evaluate_contexts(true_contexts: list[dict[str, str]], predicted_contexts: l
 
     Args:
         true_contexts (list[dict[str, str]]): list of ground truth contexts for each query
-        predicted_contextes (list[dict[str, str]]): list of predicted contexts for each query
+        predicted_contexts (list[dict[str, str]]): list of predicted contexts for each query
 
     Returns:
         float: score representing retrieval performance
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     db = make_book_db(DATABASE_URL)
-    book_df = make_book_df(db, Book)
+    book_df = make_book_df(db)
     
     queries, true_contexts, true_answers = read_test_set(args.filepath)
     predicted_contexts, predicted_answers = run_pipeline(queries, book_df)

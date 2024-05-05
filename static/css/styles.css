@@ -10,6 +10,10 @@ a {
     cursor: pointer;
 }
 
+p {
+    padding-bottom: 15px;
+}
+
 #column {
     margin: auto;
     max-width: 800px;
@@ -33,7 +37,7 @@ h2 {
     font-family: "Courier", sans-serif;
     font-size: 20px;
     margin-top: 0;
-    margin-bottom: 45px;
+    margin-bottom: 30px;
 }
 
 /*Form styles*/
@@ -69,6 +73,7 @@ h2 {
 
 #submit {
     color: #666666;
+    background-color: #EEEEEE;
     border: 2px solid #EEEEEE;
     cursor: pointer;
 }
@@ -77,6 +82,10 @@ h2 {
     background-color: #DDDDDD;
     border: 2px solid #DDDDDD;
     cursor: pointer;
+}
+
+#submit:visited {
+    cursor: wait;
 }
 
 /*Results styles*/
