@@ -1,12 +1,10 @@
 import unittest
 import elastic_search
 import alchemy_database
-import elasticsearch_index
 
 DATABASE_URL = "sqlite:///books_db.db"
 db = alchemy_database.make_book_db(DATABASE_URL)
 book_df = alchemy_database.make_book_df(db)
-elasticsearch_index.load_es_index()
 
 
 class TestOutput(unittest.TestCase):

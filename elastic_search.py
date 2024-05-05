@@ -1,5 +1,6 @@
 # code adapted from COSI 132A spring 2023
 
+from argparse import ArgumentParser
 from sentence_transformers import SentenceTransformer
 from elasticsearch_dsl import Search, connections
 from elasticsearch_dsl.query import ScriptScore, Query
@@ -72,7 +73,10 @@ def process_query_and_search(query: str, index_name: str, k: int = 1, scoring_fu
 
 
 if __name__ == '__main__':
-    user_input = "Where are the characters of Dr. Franklin’s Island by Gwyneth Jones headed when their plane crashes?"
-    results = process_query_and_search(user_input, 'books', k=2)
+    parser = ArgumentParser()
+    parser.add_argument('--query', default="Where are the characters of Dr. Franklin’s Island by Gwyneth Jones headed "
+                                           "when their plane crashes?")
+    args = parser.parse_args()
+    results = process_query_and_search(args.query, 'books', k=2)
     print('RESULTS:')
     print(results)
