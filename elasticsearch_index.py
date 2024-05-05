@@ -7,10 +7,10 @@ from sqlalchemy.orm import sessionmaker
 
 from elasticsearch_dsl.connections import connections
 from elasticsearch_dsl import Index
-from elasticsearch_dsl import Document, Text, Keyword, DenseVector
+from elasticsearch_dsl import Document, Text, Keyword, DenseVector, Object
 from elasticsearch.helpers import bulk
 
-from alchemy_database import make_book_df, Book, Base
+from alchemy_database import make_book_df, Base
 
 
 def load_docs() -> Generator[dict, None, None]:
@@ -24,9 +24,9 @@ def load_docs() -> Generator[dict, None, None]:
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
-    df = make_book_df(db, Book)
+    df = make_book_df(db)
     df['pub_date'] = df['pub_date'].map(str)
-    df['genres'] = df['genres'].map(str)
+    df['genres'] = df['genres']  # .map(str)
     json_data = json.loads(df.to_json(orient='records'))
     for record in json_data:
         yield record
@@ -42,7 +42,7 @@ class BaseDoc(Document):
     title = Text()
     author = Text()
     pub_date = Text()
-    genres = Text()
+    genres = Object()
     summary = Text()
     # sentence BERT embedding in the DenseVector field
     embedding = DenseVector(dims=384)
