@@ -4,7 +4,7 @@ import pickle
 import pandas as pd
 from llm import dict_to_commas
 from alchemy_database import Book, make_book_db, add_book, make_book_df, \
-    emb_get_prompt, cosine_sim, get_max_sim, get_max_sims
+    cosine_sim, get_max_sim, get_max_sims
 
 
 # Define the unit tests
@@ -97,25 +97,6 @@ class TestMethods(unittest.TestCase):
         result = dict_to_commas({'genre1': 'Fiction'})
         self.assertEqual(result, 'Fiction')
 
-    def test_emb_get_prompt(self):
-        # Test with all parameters provided
-        result = emb_get_prompt(title="Title", author="Author", genres={'genre1': 'Fiction'}, summary="Summary", pub_date="2022-01-01")
-        expected = "Title was written by Author in 2022-01-01. It is a work of Fiction. Here is a summary of Title: Summary"
-        self.assertEqual(result, expected)
-
-        # Test with missing parameters
-        result = emb_get_prompt("Title", "Author", None, None, None)
-        expected = "Title was written by Author."
-        self.assertEqual(result, expected)
-
-        result = emb_get_prompt("Title", None, None, None, "2022")
-        expected = "Title was written in 2022."
-        self.assertEqual(result, expected)
-
-        result = emb_get_prompt("Title", None, None, None, None)
-        expected = "Title was written."
-        self.assertEqual(result, expected)
-
     def test_cosine_sim(self):
         x = np.array([1, 0, 0])
         y = np.array([1, 0, 0])
@@ -130,13 +111,24 @@ class TestMethods(unittest.TestCase):
     def test_get_max_sim(self):
         query_vec = np.array([1, 0, 1])
         result = get_max_sim(self.df, query_vec)
-        expected = {'title': 'Book 2', 'author': 'Author 2', 'genres': {'g': 'Non-Fiction'}, 'summary': 'Summary 2', 'pub_date': '2022-01-02', 'embedding': [1, 0, 1]}
+        expected = {'title': 'Book 2',
+                    'author': 'Author 2',
+                    'genres': {'g': 'Non-Fiction'},
+                    'summary': 'Summary 2',
+                    'pub_date': '2022-01-02',
+                    'embedding': [1, 0, 1]}
         self.assertDictEqual(result, expected)
 
     def test_get_max_sims(self):
         query_vec = np.array([1, 0, 1])
         result = get_max_sims(self.df, query_vec, 1)
-        expected = [{'title': 'Book 2', 'author': 'Author 2', 'genres': {'g': 'Non-Fiction'}, 'summary': 'Summary 2', 'pub_date': '2022-01-02', 'embedding': [1, 0, 1], 'sims': cosine_sim(query_vec, [1, 0, 1])}]
+        expected = [{'title': 'Book 2',
+                     'author': 'Author 2',
+                     'genres': {'g': 'Non-Fiction'},
+                     'summary': 'Summary 2',
+                     'pub_date': '2022-01-02',
+                     'embedding': [1, 0, 1],
+                     'sims': cosine_sim(query_vec, np.array([1, 0, 1]))}]
         self.assertListEqual(result, expected)
 
 

@@ -62,7 +62,7 @@ class TestGetPrompt(unittest.TestCase):
         expected = """Context:\nMacbeth was written by William Shakespeare in 1606. It is a work of Shakespearean tragedy, Tragedy, Theatre, and Shakespearean Theatre. Here is a summary of Macbeth: A man tries to avoid his destiny but it comes to him anyways.\n---\nNow here is the question you need to answer.\nQuestion: What does the dagger symbolize in Macbeth?"""
         self.assertEqual(expected, output)
 
-    def test_mimimum_info(self):
+    def test_minimum_info(self):
         context = {'title': 'Macbeth',
                    'author': None,
                    'pub_date': None,

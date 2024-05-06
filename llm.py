@@ -22,7 +22,8 @@ def get_prompt(question: str, context: dict[str, str | dict[str, str]]) -> list[
     """
     instruction = """Answer only the question asked; the response should be concise and relevant to the question."""
 
-    prompt = """Context:\n""" + create_template_string(context) + f"""\n---\nNow here is the question you need to answer.\nQuestion: {question}"""
+    prompt = ("""Context:\n""" + create_template_string(context) +
+              f"""\n---\nNow here is the question you need to answer.\nQuestion: {question}""")
 
     message = [ChatMessage(role='system', content=instruction), ChatMessage(role='user', content=prompt)]
     return message
