@@ -6,10 +6,10 @@ May 2024
 ## Runtime instructions
 
 1. Clone and cd into the directory.
-2. **TODO**: How to get Mistral API key. Create a file called llm_secret.py in the repository's root directory 
+2. Generate your own Mistral API key or use the one we provide in our assignment submisison email. Create a file called llm_secret.py in the repository's root directory 
 with the format:
     ```
-    key = "YOUR-API-KEY"
+    key = "MISTRAL-API-KEY"
     ```
 3. Build and run the application:
     ```
@@ -24,7 +24,7 @@ To evaluate the system's performance on the handwritten test set, run:
 ```
 $ python evaluate.py --filepath test_data/test_questions.jsonl
 ```
-(Adjust the filepath argument in order to evaluate performance on other test files.)
+(Adjust the filepath argument in order to evaluate performance on other test files.)  
 To run unit tests, run:
 ```
 $ python -m unittest discover -p "*_tests.py"
