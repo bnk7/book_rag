@@ -6,7 +6,7 @@ May 2024
 ## Runtime instructions
 
 1. Clone and cd into the directory.
-2. Generate your own Mistral API key or use the one we provide in our assignment submisison email. Create a file called llm_secret.py in the repository's root directory 
+2. Generate your own Mistral API key or use the one we provide in our assignment submission email. Create a file called llm_secret.py in the repository's root directory 
 with the format:
     ```
     key = "MISTRAL-API-KEY"
