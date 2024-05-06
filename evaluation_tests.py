@@ -113,7 +113,7 @@ class TestEvaluateAnswer(unittest.TestCase):
     def test_correct_answer(self):
         predicted_answer = ["The dagger appears throughout the play, in reality and hallucinations, to symbolize Macbeth's violent choice and ambition."]
         score = evaluate_answers(self.query, self.true_answer, predicted_answer)
-        self.assertAlmostEqual(1, score, places=4)
+        self.assertAlmostEqual(1.0, score, places=4)
 
     def test_similarity_range(self):
         very_similar_answer = ["The dagger shows up throughout the play, in reality and hallucinations, to represent Macbeth's violent decisions and ambition."]

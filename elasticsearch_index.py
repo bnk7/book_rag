@@ -6,8 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from elasticsearch_dsl.connections import connections
-from elasticsearch_dsl import Index
-from elasticsearch_dsl import Document, Text, Keyword, DenseVector, Object
+from elasticsearch_dsl import Index, Document, Text, Keyword, DenseVector, Object
 from elasticsearch.helpers import bulk
 
 from alchemy_database import make_book_df, Base
@@ -17,7 +16,8 @@ def load_docs() -> Generator[dict, None, None]:
     """
     Prepare and load the documents for ES indexing
 
-    :return: generator of JSON objects, one per document
+    Returns:
+        Generator of JSON objects, one per document
     """
     DATABASE_URL = "sqlite:///books_db.db"
     engine = create_engine(DATABASE_URL, echo=True)
@@ -34,7 +34,8 @@ def load_docs() -> Generator[dict, None, None]:
 
 class BaseDoc(Document):
     """
-    document mapping structure
+    Document mapping structure.
+    Consists of an id, title, author, publication date, genre(s), summary, and embedding.
     """
     # treat the ID as a Keyword (its value won't be tokenized or normalized).
     id = Keyword()
@@ -51,10 +52,11 @@ class BaseDoc(Document):
 class ESIndex(object):
     def __init__(self, index_name: str, docs: Iterator[dict] | Sequence[dict]):
         """
-        ES index structure
+        Specify ES index structure
 
-        :param index_name: the name of the index
-        :param docs: data to be loaded
+        Args:
+            index_name (str): The name of the index
+            docs (Iterator | Sequence) : The data to be loaded
         """
         # set an elasticsearch connection to your localhost
         with open('es_password.txt') as f:
@@ -76,10 +78,12 @@ class ESIndex(object):
     @staticmethod
     def _populate_doc(docs: Iterator[dict] | Sequence[dict]) -> Generator[BaseDoc, None, None]:
         """
-        Populate the BaseDoc
+        Populate the BaseDoc with all fields.
 
-        :param docs: documents
-        :return: generator of documents
+        Args:
+            docs(Iterator | Sequence): The data
+        Returns:
+            Generator of the documents
         """
         for doc in docs:
             es_doc = BaseDoc(_id=doc['id'])
@@ -96,8 +100,8 @@ class ESIndex(object):
         """
         Perform bulk insertion
 
-        :param docs: documents to be inserted
-        :return: None
+        Args:
+            docs (Iterator | Sequence) : Documents to be inserted
         """
         bulk(
             connections.get_connection('default'),
@@ -111,7 +115,7 @@ class ESIndex(object):
 
 class IndexLoader:
     """
-    load document index to Elasticsearch
+    Load document index to Elasticsearch
     """
     def __init__(self, index: str, docs: Iterator[dict] | list[dict]):
         self.index_name = index
@@ -129,8 +133,6 @@ class IndexLoader:
 def load_es_index() -> None:
     """
     Build an index called 'books'
-
-    :return: None
     """
     idx_loader = IndexLoader.from_alchemy('books')
     idx_loader.load()

@@ -12,13 +12,14 @@ DATABASE_URL = 'sqlite:///books_db.db'
 
 
 def read_test_set(filepath: str) -> tuple[list[str], list[dict[str, str]], list[str]]:
-    """Reads in test set from file
+    """Reads in test set from file.
 
     Args:
         filepath (str): file containing test set
 
     Returns:
-        tuple[list[str], list[dict[str, str]], list[str]]: lists of queries, ground truth contexts, and ground truth answers from test set
+        tuple[list[str], list[dict[str, str]], list[str]]:
+        lists of queries, ground truth contexts, and ground truth answers from test set
     """
     with open(filepath) as f:
         test_set = f.readlines()
@@ -30,7 +31,7 @@ def read_test_set(filepath: str) -> tuple[list[str], list[dict[str, str]], list[
 
 
 def run_pipeline(queries: list[str], book_df: pd.DataFrame) -> tuple[list[dict[str, str]], list[str]]:
-    """Runs retrieval and generation pipeline on a set of queries
+    """Runs retrieval and generation pipeline on a set of queries.
 
     Args:
         queries (list[str]): list of queries
@@ -50,11 +51,11 @@ def run_pipeline(queries: list[str], book_df: pd.DataFrame) -> tuple[list[dict[s
 
 
 def evaluate_contexts(true_contexts: list[dict[str, str]], pred_contexts: list[dict[str, str]]) -> float:
-    """Evaluates retrieval step of pipeline
+    """Evaluates retrieval step of pipeline.
 
     Args:
         true_contexts (list[dict[str, str]]): list of ground truth contexts for each query
-        pred_contextes (list[dict[str, str]]): list of predicted contexts for each query
+        pred_contexts (list[dict[str, str]]): list of predicted contexts for each query
 
     Returns:
         float: score representing retrieval performance
@@ -77,7 +78,7 @@ def evaluate_contexts(true_contexts: list[dict[str, str]], pred_contexts: list[d
 
 
 def evaluate_answers(queries: list[str], true_answers: list[str], pred_answers: list[str]) -> float:
-    """Evaluates generation step of pipeline
+    """Evaluates generation step of pipeline.
 
     Args:
         queries (list[str]): list of queries

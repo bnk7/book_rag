@@ -8,6 +8,7 @@ from elasticsearch_dsl.query import ScriptScore, Query
 # set an elasticsearch connection to your localhost
 with open('es_password.txt') as f:
     es_password = f.readline().strip()
+
 connections.create_connection(hosts=['https://localhost:9200'], timeout=100, alias="default",
                               basic_auth=('elastic', es_password), verify_certs=False)
 
@@ -18,9 +19,12 @@ def generate_query(q_vector: list[float], scoring_function: str) -> Query:
     """
     Generate an ES query that matches documents based on the given scoring function
 
-    :param q_vector: query embedding from the encoder
-    :param scoring_function: cosineSimilarity, dotProduct, l1norm, or l2norm
-    :return: a query object
+    Args:
+        q_vector (list): Query embedding from the encoder
+        scoring_function (str): String specifying how query should be scored.
+            Choices are {cosineSimilarity, dotProduct, l1norm, l2norm}
+    Returns:
+        Query object
     """
     q_script = ScriptScore(
         query={"match_all": {}},  # use a match-all query
@@ -35,12 +39,15 @@ def generate_query(q_vector: list[float], scoring_function: str) -> Query:
 
 def search(index: str, query: Query, topk: int) -> list[dict]:
     """
-    Create a query and return top k results
+    Create a query and return top k results.
 
-    :param index: index name
-    :param query: ElasticSearch Query
-    :param topk: number of hits to return
-    :return: top k documents
+    Args:
+        index (str): The name of the index
+        query (Query): ElasticSearch Query
+        topk (int): number of hits to return
+
+    Returns:
+        List of top k documents
     """
     s = Search(using="default", index=index).query(query)[:20]
     response = s.execute()
@@ -55,13 +62,17 @@ def search(index: str, query: Query, topk: int) -> list[dict]:
 def process_query_and_search(query: str, index_name: str, k: int = 1, scoring_function: str = 'cosineSimilarity') \
         -> list[dict]:
     """
-    Given a user's query, returns the most relevant documents
+    Given a user's query, returns the most relevant documents.
 
-    :param query: user's query
-    :param index_name: name of the ElasticSearch index
-    :param k: number of books to return
-    :param scoring_function: cosineSimilarity, dotProduct, l1norm, or l2norm
-    :return: top k documents
+    Args:
+        query (str): User's query
+        index_name (str): Name of the ElasticSearch index
+        k (int): Number of books to return, default 1
+        scoring_function (str): String specifying how query should be scored.
+            Choices are {cosineSimilarity, dotProduct, l1norm, l2norm}, default cosineSimilarity
+
+    Returns:
+        List representing the top k documents
     """
     # get the query embedding and convert it to a list
     embeddings = model.encode([query])
@@ -74,8 +85,8 @@ def process_query_and_search(query: str, index_name: str, k: int = 1, scoring_fu
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--query', default="Where are the characters of Dr. Franklin’s Island by Gwyneth Jones headed "
-                                           "when their plane crashes?")
+    parser.add_argument('--query',
+                        default="Where are the characters of Dr. Franklin’s Island by Gwyneth Jones headed when their plane crashes?")
     args = parser.parse_args()
     results = process_query_and_search(args.query, 'books', k=2)
     print('RESULTS:')

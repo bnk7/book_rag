@@ -59,8 +59,8 @@ $ python test_es.py
 * `static/` - Contains images and styles for the frontend
     * `css/` - Contains CSS file
         * `styles.css` - Project stylesheet 
-    * `favicon.ico` - Project icon
-    * `github.png` - Image for GH link
+    * `favicon.ico`
+    * `github.png`
 * `templates/` - Contains HTML files
     * `index.html` - Start page of site
     * `results.html` - Template for query response page
@@ -74,19 +74,19 @@ $ python test_es.py
 * `books_db.db` - SQLAlchemy database
 * `create_database.py` - Creates the SQLAlchemy database, does not need to be rerun after database exists in project
 * `dockerfile` - The Dockerfile to containerize the project
-* `elastic_search.py` -
-* `elasticsearch_index.py` -
+* `elastic_search.py` - Code to query the database via elasticsearch
+* `elasticsearch_index.py` - Creates the Elasticsearch index, does not need to be rerun after database exists in project
+* `elasticsearch_tests.py` - Unittests for the elasticsearch functionality
 * `es_dockerfile` - Specialized Dockerfile required to run Elasticsearch scripts
 * `es_password.txt` - Required to be created locally by the user, contains the Elasticsearch password generated with the above instructions
-* `evaluate.py` -
-* `evaluation_tests.py` -
-* `generate_test_qs.py` -
+* `evaluate.py` - Runs evaluation scripts on the quality of the answers output by the LLM.
+* `evaluation_tests.py` - Unittests for the evaluation scripts
+* `generate_test_qs.py` - Creates test data as found in `test_data/`
 * `llm.py` - Code to query the Mistral API to obtain LLM responses
 * `llm_secret.py` - Required to be created locally by the user, contains a Mistral API key stored in `key`
 * `llm_tests.py` - Unittests for the LLM prompting code
 * `main.py` - Flask frontend code
 * `README.md` - You are here :)
 * `requirements.txt` - Project dependencies
-* `run_unit_tests.sh` -
-* `test_es.py` -
+* `run_unit_tests.sh` - Runs all unittests in the project
 * `utils.py` - Contains short utility functions which are used by multiple other files
