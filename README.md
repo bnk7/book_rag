@@ -53,7 +53,7 @@ Here are the steps for running it:
 
 You can also run the unit test to see that its output matches the SQLAlchemy output:
 ```
-$ python test_es.py
+$ python elasticsearch_tests.py
 ```
 ## File structure
 * `static/` - Contains images and styles for the frontend
