@@ -1,4 +1,4 @@
-from alchemy_database import process_query_and_search, make_book_db, make_book_df
+from alchemy_database import *
 from argparse import ArgumentParser
 from falcon_evaluate.evaluate import FalconEvaluator
 from falcon_evaluate.utils import MetricsAggregator
@@ -39,78 +39,81 @@ def run_pipeline(queries: list[str], book_df: pd.DataFrame) -> tuple[list[dict[s
     Returns:
         tuple[list[dict[str, str]], list[str]]: lists of predicted contexts and predicted answers
     """
-    predicted_contexts = []
-    predicted_answers = []
+    pred_contexts = []
+    pred_answers = []
     for query in queries:
         context = process_query_and_search(query, book_df)[0]
         answer = get_answer(query, context)
-        predicted_contexts.append(context)
-        predicted_answers.append(answer)
-    return predicted_contexts, predicted_answers
+        pred_contexts.append(context)
+        pred_answers.append(answer)
+    return pred_contexts, pred_answers
 
 
-def evaluate_contexts(true_contexts: list[dict[str, str]], predicted_contexts: list[dict[str, str]]) -> float:
+def evaluate_contexts(true_contexts: list[dict[str, str]], pred_contexts: list[dict[str, str]]) -> float:
     """Evaluates retrieval step of pipeline
 
     Args:
         true_contexts (list[dict[str, str]]): list of ground truth contexts for each query
-        predicted_contexts (list[dict[str, str]]): list of predicted contexts for each query
+        pred_contextes (list[dict[str, str]]): list of predicted contexts for each query
 
     Returns:
         float: score representing retrieval performance
     """
-    # adjust these weights to determine how much each component of the context should contribute to the overall score
+    # these weights determine how much each component of the context contributes to the overall score
     weights = {'title': 0.45, 'author': 0.25, 'summary': 0.3}
-    # using rouge2 score currently, but can be adjusted to another rougeN or rougeL
     scorer = rouge_scorer.RougeScorer(['rouge2'])
     scores = []
-    for true, predicted in zip(true_contexts, predicted_contexts):
+    for true, pred in zip(true_contexts, pred_contexts):
         score = 0
-        if true['title'] == predicted['title']:
+        if true['title'] == pred['title']:
             score += 1 * weights['title']
-        if true['author'] == predicted['author']:
+        if true['author'] == pred['author']:
             score += 1 * weights['author']
-        rouge = scorer.score(true['summary'], predicted['summary'])['rouge2'].fmeasure
+        rouge_scores = scorer.score(true['summary'], pred['summary'])
+        rouge = rouge_scores['rouge2'].fmeasure
         score += rouge * weights['summary']
         scores.append(score)
     return sum(scores) / len(scores)
 
 
-def evaluate_answers(queries: list[str], true_answers: list[str], predicted_answers: list[str]) -> dict[str, float]:
+def evaluate_answers(queries: list[str], true_answers: list[str], pred_answers: list[str]) -> float:
     """Evaluates generation step of pipeline
 
     Args:
         queries (list[str]): list of queries
         true_answers (list[str]): list of ground truth answers for each query
-        predicted_answers (list[str]): list of predicted answers for each query
+        pred_answers (list[str]): list of predicted answers for each query
 
     Returns:
-        dict[str, float]: scores representing generation performance
+        float: score representing generation performance
     """
-    df = pd.DataFrame({'prompt': queries, 'reference': true_answers, 'Mistral': predicted_answers})
+    df = pd.DataFrame({'prompt': queries,
+                       'reference': true_answers,
+                       'Mistral': pred_answers})
     evaluator = FalconEvaluator(df)
     evaluation_results = evaluator.evaluate(use_relevance=False)
     aggregator = MetricsAggregator(evaluation_results)
-    aggregated_metrics_df = aggregator.aggregate()
-    scores = aggregated_metrics_df['Mistral-Scores'][0]['Text Similarity and Relevance']
-    return scores
+    aggregated_metrics = aggregator.aggregate()
+    scores = aggregated_metrics['Mistral-Scores'][0]
+    similarity = scores['Text Similarity and Relevance']['Jaccard Similarity']
+    return similarity
 
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('-f', '--filepath', help='the file containing the test set', default='test_questions.jsonl')
+    parser.add_argument('-f', '--filepath',
+                        help='the file containing the test set',
+                        default='test_questions.jsonl')
     args = parser.parse_args()
 
     db = make_book_db(DATABASE_URL)
     book_df = make_book_df(db)
-    
-    queries, true_contexts, true_answers = read_test_set(args.filepath)
-    predicted_contexts, predicted_answers = run_pipeline(queries, book_df)
 
-    context_score = evaluate_contexts(true_contexts, predicted_contexts)
-    answer_score = evaluate_answers(queries, true_answers, predicted_answers)
+    queries, true_contexts, true_answers = read_test_set(args.filepath)
+    pred_contexts, pred_answers = run_pipeline(queries, book_df)
+
+    context_score = evaluate_contexts(true_contexts, pred_contexts)
+    answer_score = evaluate_answers(queries, true_answers, pred_answers)
 
     print("Retrieval performance: " + str(context_score))
     print("Generation performance: " + str(answer_score))
-
-    

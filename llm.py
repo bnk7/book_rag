@@ -9,57 +9,13 @@ model = "open-mistral-7b"
 client = MistralClient(api_key=api_key)
 
 
-def get_prompt(question: str, context: dict[str, str | dict]) -> list[ChatMessage]:
-    """Gets prompt for Mistral based on available information
-
-    Args:
-        question (str): user's question
-        context (dict[str, str]): context related to question extracted from database
-
-    Returns:
-        list[ChatMessage]: Mistral prompt
-    """
-    instruction = """Respond only to the question asked; the response should be concise and relevant to the question."""
-    values = {'title': context['title'], 'summary': context['summary'], 'question': question}
-    template_string = """Here is a summary of $title: $summary
----
-Now here is the question you need to answer. 
-Question: $question"""
-
-    has_author = context["author"] is not None
-    if has_author:
-        values['author'] = context['author']
-        template_string = "$title was written by $author. " + template_string
-    if context['pub_date'] is not None:
-        values['pub_date'] = context['pub_date'][:4]
-        if has_author:
-            template_string = template_string[:29] + " in $pub_date" + template_string[29:]
-        else:
-            template_string = "$title was written in $pub_date. " + template_string
-    if context['genres'] is not None:
-        values['genres'] = dict_to_commas(context["genres"])
-        if has_author:
-            template_string = template_string[:-107] + "It is a work of $genres. " + template_string[-107:]
-        else:
-            if "date" in template_string:
-                template_string = template_string[:33] + "It is a work of $genres. " + template_string[33:]
-            else:
-                template_string = "$title is a work of $genres. " + template_string
-
-    template_string = """Context:\n""" + template_string
-
-    prompt_template = Template(template_string)
-    prompt = prompt_template.substitute(values)
-    message = [ChatMessage(role='system', content=instruction), ChatMessage(role='user', content=prompt)]
-    return message
-
-
 def dict_to_commas(data: dict[str, str]) -> str:
     """
     Return a nicely formatted readable version of the values of a dictionary.
 
     Args:
         data (dict[str, str]): The dictionary to be formatted
+        
     Returns:
         String representing the values of the dictionary
     """
@@ -73,29 +29,56 @@ def dict_to_commas(data: dict[str, str]) -> str:
     return output
 
 
-def convert_date(date: str) -> str:
-    """Converts the given date from yyyy-mm-dd format to month day, year format.
+def get_prompt(question: str, context: dict[str, str | dict[str, str]]) -> list[ChatMessage]:
+    """Gets prompt for Mistral based on available information
 
     Args:
-        date (str): The date to convert
+        question (str): user's question
+        context (dict[str, str | dict[str, str]]): context from database related to question
+
     Returns:
-        String representing the reformatted date
+        list[ChatMessage]: Mistral prompt
     """
-    months = ["January", "February", "March", "April", "May", "June", "July",
-              "August", "September", "October", "November", "December"]
-    year = date[:4]
-    month = months[int(date[5:7])]
-    day = date[-2:]
+    instruction = """Answer only the question asked; the response should be concise and relevant to the question."""
+    values = {'title': context['title'],
+              'summary': context['summary'], 'question': question}
+    template_string = "Context:\n"
+    author_or_pub_date = context['author'] is not None or context['pub_date'] is not None
+    if author_or_pub_date:
+        template_string = template_string + "$title was written"
+    if context['author'] is not None:
+        values['author'] = context['author']
+        template_string = template_string + " by $author"
+    if context['pub_date'] is not None:
+        values['pub_date'] = context['pub_date'][:4]
+        template_string = template_string + " in $pub_date"
+    if author_or_pub_date:
+        template_string = template_string + ". "
+    if context['genres'] is not None:
+        if author_or_pub_date:
+            template_string = template_string + "It"
+        else:
+            template_string = template_string + "$title"
+        values['genres'] = dict_to_commas(context['genres'])
+        template_string = template_string + " is a work of $genres. "
+    template_string = template_string + """Here is a summary of $title: $summary
+---
+Now here is the question you need to answer.
+Question: $question"""
 
-    return month + " " + day + ", " + year
+    prompt_template = Template(template_string)
+    prompt = prompt_template.substitute(values)
+    message = [ChatMessage(role='system', content=instruction),
+               ChatMessage(role='user', content=prompt)]
+    return message
 
 
-def get_answer(question: str, context: dict[str, str]) -> str:
+def get_answer(question: str, context: dict[str, str | dict[str, str]]) -> str:
     """Gets Mistral output
 
     Args:
         question (str): user's question
-        context (dict[str, str]): context related to question extracted from database
+        context (dict[str, str | dict[str, str]]): context related to question extracted from database
 
     Returns:
         str: Mistral output
@@ -106,6 +89,7 @@ def get_answer(question: str, context: dict[str, str]) -> str:
         messages=message,
     )
     return chat_response.choices[0].message.content
+
 
 def choose_best_book(question: str, contexts: list[dict[str, str]]) -> dict[str, str | dict]:
     """
