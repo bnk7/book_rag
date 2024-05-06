@@ -95,7 +95,7 @@ def evaluate_answers(queries: list[str], true_answers: list[str], pred_answers: 
     aggregator = MetricsAggregator(evaluation_results)
     aggregated_metrics = aggregator.aggregate()
     scores = aggregated_metrics['Mistral-Scores'][0]
-    similarity = scores['Text Similarity and Relevance']['Jaccard Similarity']
+    similarity = scores['Text Similarity and Relevance']['Semantic Similarity']
     return similarity
 
 

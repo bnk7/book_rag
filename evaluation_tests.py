@@ -108,30 +108,24 @@ class TestEvaluateAnswer(unittest.TestCase):
     def setUpClass(self):
         warnings.simplefilter('ignore')
         self.query = ["What does the dagger represent in Macbeth?"]
-        self.true_answer = [
-            "The dagger appears throughout the play, in reality and hallucinations, to symbolize Macbeth's violent choice and ambition."]
+        self.true_answer = ["The dagger appears throughout the play, in reality and hallucinations, to symbolize Macbeth's violent choice and ambition."]
 
     def test_correct_answer(self):
-        predicted_answer = [
-            "The dagger appears throughout the play, in reality and hallucinations, to symbolize Macbeth's violent choice and ambition."]
-        score = evaluate_answers(
-            self.query, self.true_answer, predicted_answer)
-        self.assertEqual(1, score)
+        predicted_answer = ["The dagger appears throughout the play, in reality and hallucinations, to symbolize Macbeth's violent choice and ambition."]
+        score = evaluate_answers(self.query, self.true_answer, predicted_answer)
+        self.assertAlmostEqual(1, score, places=4)
 
     def test_similarity_range(self):
-        very_similar_answer = [
-            "The dagger shows up throughout the play, in reality and hallucinations, to represent Macbeth's violent decisions and ambition."]
-        very_similar_score = evaluate_answers(
-            self.query, self.true_answer, very_similar_answer)
-        slightly_similar_answer = [
-            "The dagger, real and imagined, symbolizes Macbeth's brutal inclinations."]
-        slightly_similar_score = evaluate_answers(
-            self.query, self.true_answer, slightly_similar_answer)
-        different_answer = [
-            "The dagger is a weapon that Macbeth uses to kill intruders."]
-        different_score = evaluate_answers(
-            self.query, self.true_answer, different_answer)
-        self.assertGreater(very_similar_score, slightly_similar_score)
+        very_similar_answer = ["The dagger shows up throughout the play, in reality and hallucinations, to represent Macbeth's violent decisions and ambition."]
+        very_similar_score = evaluate_answers(self.query, self.true_answer, very_similar_answer)
+        somewhat_similar_answer = ["The dagger, real and imagined, symbolizes Macbeth's brutal inclinations."]
+        somewhat_similar_score = evaluate_answers(self.query, self.true_answer, somewhat_similar_answer)
+        slightly_similar_answer = ["The dagger is a weapon that Macbeth uses to kill intruders."]
+        slightly_similar_score = evaluate_answers(self.query, self.true_answer, slightly_similar_answer)
+        different_answer = ["Flowers represent hope and renewal."]
+        different_score = evaluate_answers(self.query, self.true_answer, different_answer)
+        self.assertGreater(very_similar_score, somewhat_similar_score)
+        self.assertGreater(somewhat_similar_answer, slightly_similar_answer)
         self.assertGreater(slightly_similar_score, different_score)
 
 
