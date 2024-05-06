@@ -21,7 +21,7 @@ if __name__ == '__main__':
             answer = result['pub_date']
             result['question'] = question
             result['answer'] = answer
-            with open('date_test_qs!!.jsonl', 'a') as f:
+            with open('test_data/date_test_qs!!.jsonl', 'a') as f:
                 json.dump(result, f)
                 f.write('\n')
 
@@ -38,6 +38,6 @@ if __name__ == '__main__':
             answer = result['author']
             result['question'] = question
             result['answer'] = answer
-            with open('author_test_qs!!.jsonl', 'a') as f:
+            with open('test_data/author_test_qs!!.jsonl', 'a') as f:
                 json.dump(result, f)
                 f.write('\n')
