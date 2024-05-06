@@ -2,8 +2,8 @@ import unittest
 import numpy as np
 import pickle
 import pandas as pd
+from llm import dict_to_commas
 from alchemy_database import Book, make_book_db, add_book, make_book_df, \
-    process_query_and_search, make_comma_sep_string, \
     emb_get_prompt, cosine_sim, get_max_sim, get_max_sims
 
 
@@ -86,15 +86,15 @@ class TestMethods(unittest.TestCase):
 
     def test_make_comma_sep_string(self):
         # test with three genres
-        result = make_comma_sep_string({'genre1': 'Fiction', 'genre2': 'Fantasy', 'genre': 'SciFi'})
-        self.assertEqual(result, 'Fiction, Fantasy and SciFi')
+        result = dict_to_commas({'genre1': 'Fiction', 'genre2': 'Fantasy', 'genre': 'SciFi'})
+        self.assertEqual(result, 'Fiction, Fantasy, and SciFi')
 
         # test with two genres
-        result = make_comma_sep_string({'genre1': 'Fiction', 'genre2': 'Fantasy'})
+        result = dict_to_commas({'genre1': 'Fiction', 'genre2': 'Fantasy'})
         self.assertEqual(result, 'Fiction and Fantasy')
 
         # test with single genre
-        result = make_comma_sep_string({'genre1': 'Fiction'})
+        result = dict_to_commas({'genre1': 'Fiction'})
         self.assertEqual(result, 'Fiction')
 
     def test_emb_get_prompt(self):

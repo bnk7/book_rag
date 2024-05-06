@@ -28,7 +28,7 @@ To run unit tests, run:
 $ docker exec -i flask bash run_unit_tests.sh
 ```
 
-# Elasticsearch
+## Elasticsearch
 
 The application uses SQLAlchemy as the database because it integrates smoothly with the tech stack.
 However, we did experiment with Elasticsearch, and you can test it out separately.
@@ -55,4 +55,38 @@ You can also run the unit test to see that its output matches the SQLAlchemy out
 ```
 $ python test_es.py
 ```
-   
+## File structure
+* `static/` - Contains images and styles for the frontend
+    * `css/` - Contains CSS file
+        * `styles.css` - Project stylesheet 
+    * `favicon.ico` - Project icon
+    * `github.png` - Image for GH link
+* `templates/` - Contains HTML files
+    * `index.html` - Start page of site
+    * `results.html` - Template for query response page
+* `test_data/` - Data files for evaluating scripts
+    * `author_test_qs.jsonl`
+    * `date_test_qs.jsonl`
+    * `test_questions.jsonl`
+* `.gitignore` - Gitignore (usual extraneous files plus API key files)
+* `alchemy_database.py` - Code for filling and querying the SQLAlchemy database
+* `alchemy_tests.py` - Unittests for alchemy database
+* `books_db.db` - SQLAlchemy database
+* `create_database.py` - Creates the SQLAlchemy database, does not need to be rerun after database exists in project
+* `dockerfile` - The Dockerfile to containerize the project
+* `elastic_search.py` -
+* `elasticsearch_index.py` -
+* `es_dockerfile` - Specialized Dockerfile required to run Elasticsearch scripts
+* `es_password.txt` - Required to be created locally by the user, contains the Elasticsearch password generated with the above instructions
+* `evaluate.py` -
+* `evaluation_tests.py` -
+* `generate_test_qs.py` -
+* `llm.py` - Code to query the Mistral API to obtain LLM responses
+* `llm_secret.py` - Required to be created locally by the user, contains a Mistral API key stored in `key`
+* `llm_tests.py` - Unittests for the LLM prompting code
+* `main.py` - Flask frontend code
+* `README.md` - You are here :)
+* `requirements.txt` - Project dependencies
+* `run_unit_tests.sh` -
+* `test_es.py` -
+* `utils.py` - Contains short utility functions which are used by multiple other files
