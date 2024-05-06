@@ -22,12 +22,12 @@ with the format:
 
 To evaluate the system's performance on the handwritten test set, run:
 ```
-$ python evaluate.py --filepath test_data/test_questions.jsonl
+$ docker exec -i flask python evaluate.py --filepath test_data/test_questions.jsonl
 ```
-(Adjust the filepath argument in order to evaluate performance on other test files.)  
+(Adjust the filepath argument in order to evaluate performance on other test files.)    
 To run unit tests, run:
 ```
-$ python -m unittest discover -p "*_tests.py"
+$ docker exec -i flask python -m unittest discover -p "*_tests.py"
 ```
 
 ## Elasticsearch
